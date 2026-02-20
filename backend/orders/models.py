@@ -23,17 +23,21 @@ class CartItem(models.Model):
 
 class Order(models.Model):
     class Status(models.TextChoices):
-        # Initial Stages
-        INCOMPLETE = 'INCOMPLETE', _('Incomplete')
-        QUEUE = 'QUEUE', _('Queue')
-        PROCESSING = 'PROCESSING', _('Processing')
+        # Lead Generation Stage
+        INCOMPLETE = 'INCOMPLETE', _('Incomplete (Lead)')  # Phone captured, checkout not finished
+
+        # Order Placement Stages
+        QUEUE = 'QUEUE', _('Queue')  # High traffic buffer
+        PROCESSING = 'PROCESSING', _('Processing')  # Placed, Payment Pending/COD
+
+        # Pre-fulfillment Stages
         NO_RESPONSE = 'NO_RESPONSE', _('Good But No Response')
         ON_HOLD = 'ON_HOLD', _('On Hold')
-        CONFIRMED = 'CONFIRMED', _('Confirmed')
+        CONFIRMED = 'CONFIRMED', _('Confirmed')  # Payment Verified
         CANCELLED = 'CANCELLED', _('Cancelled')
 
         # Fulfillment Stages (After Confirmation)
-        PENDING = 'PENDING', _('Pending')
+        PENDING = 'PENDING', _('Pending')  # Ready for fulfillment
         COLLECTING = 'COLLECTING', _('Collecting')
         HOLD_COLLECTING = 'HOLD_COLLECTING', _('Hold (Collecting)')
         PACKING = 'PACKING', _('Packing')
@@ -53,10 +57,15 @@ class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='orders', db_index=True)
     status = models.CharField(max_length=30, choices=Status.choices, default=Status.INCOMPLETE, db_index=True)
 
+    # Lead Management
+    is_lead = models.BooleanField(default=False, db_index=True, help_text="True if order is incomplete but phone is captured")
+    lead_score = models.IntegerField(default=0, help_text="Priority score for sales team")
+
     # Address Details (Snapshot)
-    shipping_name = models.CharField(max_length=255)
+    # Allow blank for incomplete leads
+    shipping_name = models.CharField(max_length=255, blank=True)
     shipping_phone = models.CharField(max_length=20, db_index=True)
-    shipping_address = models.TextField()
+    shipping_address = models.TextField(blank=True)
     shipping_division = models.ForeignKey(Division, on_delete=models.SET_NULL, null=True, blank=True)
     shipping_district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True)
     shipping_thana = models.ForeignKey(Thana, on_delete=models.SET_NULL, null=True, blank=True)

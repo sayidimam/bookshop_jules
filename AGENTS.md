@@ -36,8 +36,10 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`CourierDispute`**: Track lost parcels or charge mismatches.
 
 ### 4. Orders (`backend/orders`)
-- **`Order`**: Central model with status workflow (`CONFIRMED` -> `DELIVERED`).
-    - **Indices**: Composite index on `status` + `created_at` for fast dashboard queries.
+- **`Order`**: Central model with updated status workflow.
+    - **Indices**: Composite index on `status` + `created_at`.
+    - **Lead Management**: `is_lead` flag for incomplete orders (phone captured).
+    - **Queue System**: `QUEUE` status for high-traffic management.
 - **`ReturnRequest` & `ReturnItem`**: Handles partial/full returns.
 - **`PreOrder`**: Advance booking system for upcoming books.
 - **`Subscription`**: Recurring book plans (e.g., Monthly Book Box).
@@ -87,6 +89,14 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **SSLCommerz**: Library integration for payment gateway.
 
 ## Critical Workflows
+
+### Order Lifecycle & Lead Management
+1.  **Lead Capture**: User enters phone number -> Order created as `INCOMPLETE` (is_lead=True).
+2.  **Order Placement**: User completes checkout -> Status moves to `QUEUE` (High Traffic Buffer).
+3.  **Processing**: Background worker picks from Queue -> Status `PROCESSING`.
+    - If Payment Verified -> Status `CONFIRMED`.
+    - If COD -> Status `PROCESSING` (awaiting admin confirmation).
+4.  **Fulfillment**: Confirmed orders move to `PENDING` -> `PACKING` -> `RTS` -> `SHIPPED`.
 
 ### Courier Auditing & Reconciliation
 1.  **Shipment**: System records `expected_cod` and `courier_charge` in `CourierConsignment`.
