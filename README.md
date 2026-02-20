@@ -9,53 +9,81 @@ A high-scale, feature-rich e-commerce platform for books tailored for the Bangla
 
 ## 🚀 Key Features
 
-### 📦 Advanced Logistics & Shipping
-- **Zone-Based Shipping:** Different rates for Inside Dhaka, Sub-Dhaka, Outside Dhaka.
-- **Weight-Based Calculation:** Tiered pricing (e.g., 0-500g: 60tk, 500g-1kg: 70tk).
-- **Overweight Charges:** Automatic calculation for heavy parcels.
-- **Courier Integration:** Pathao, Steadfast API hooks.
+### 📦 Logistics & Financial Accounting (Advanced)
+- **Multi-Account Support:** Manage multiple accounts for Pathao, Steadfast, RedX simultaneously.
+- **Audit & Reconciliation:** Automatically track `Expected COD` vs `Received COD`.
+- **Dispute Management:** System flags lost parcels or overcharged delivery fees for dispute resolution.
+- **Zone-Based Shipping:** Complex weight-based calculation (e.g., 0-500g: 60tk, +1kg: 20tk).
 
 ### 💰 Payment & Wallet System
-- **Manual Verification:** Verify Bkash/Nagad payments via Transaction ID & SMS Webhooks.
+- **Smart Manual Verification:** Auto-match incoming Bkash/Nagad SMS via Webhook. Users only need to provide TrxID.
 - **User Wallet:** Store credit system for refunds and advance payments.
-- **Partial Refunds:** Handle complex return scenarios efficiently.
+- **SSLCommerz:** Integrated payment gateway for automated online payments.
 
 ### 🏭 Inventory & Warehouse
-- **Multi-Warehouse:** Track stock across different locations (Banglabazar, Nilkhet, etc.).
-- **Purchase Orders:** Manage supplier procurement and stock intake.
-- **Stock Logs:** Full audit trail of every inventory movement.
+- **Multi-Warehouse:** Track stock across different locations (Banglabazar, Nilkhet).
+- **Collector Workflow:** Assign specific procurement tasks (`CollectorTask`) to field agents.
+- **Internal Consumption:** Track books taken by staff/admin (Gift, Review Copy, Damaged).
+- **Stock Logs:** Full audit trail of every movement (Purchase, Sale, Return, Damage).
 
-### 🏷️ Dynamic Promotions (Offer Engine)
-- **BOGO:** Buy One Get One Free.
-- **Bundle Discounts:** Special pricing for book sets (e.g., Humayun Ahmed Collection).
-- **Tiered Discounts:** "Buy 5000tk+ get 10% off".
+### 🏷️ Dynamic Promotions & Social
+- **Offer Engine:** BOGO, Bundle Discounts, Tiered Pricing (Buy 5k get 10% off).
+- **Affiliate System:** User referral links and commission tracking.
+- **Reviews & Q&A:** Verified purchase reviews and question-answer forum.
+- **Public Collections:** Users can create and share book lists.
 
 ### 👥 User Management
 - **Mobile Auth:** Registration via Phone Number (Bangladeshi standard).
 - **Segmentation:** Auto-tagging users (VIP, Inactive, New) for targeted marketing.
-- **Affiliate System:** User referral links and commission tracking.
 
 ## 🛠️ Technology Stack
 
 - **Backend:** Django + Django REST Framework (DRF)
 - **Database:** PostgreSQL (Production), SQLite (Dev)
 - **Search Engine:** MeiliSearch (Ultra-fast search)
+- **Integrations:** Pathao API, Steadfast API, SSLCommerz, SMS Gateway
 - **Frontend:** Next.js (Planned)
-- **Task Queue:** Celery + Redis (Planned)
 
-## 📂 Project Structure
+## 📂 System Modules
 
-```
-backend/
-├── users/          # Auth & Customer Segmentation
-├── catalog/        # Books, Authors, Publishers, Bundles
-├── orders/         # Order Workflow, Returns, Pre-orders
-├── logistics/      # Shipping Zones & Rates
-├── inventory/      # Warehouses, Suppliers, POs
-├── payments/       # Transactions, Wallets, Coupons
-├── promotions/     # Dynamic Offer Engine
-└── marketing/      # Affiliate System
-```
+| Module | Description |
+| :--- | :--- |
+| `users` | Auth, Roles (Admin/Collector/Packer), Segmentation |
+| `catalog` | Books, Authors, Bundles, Categories |
+| `orders` | Order Workflow (Incomplete -> Delivered), Returns, Pre-orders |
+| `logistics` | Courier Integration, Shipping Rates, Financial Auditing |
+| `inventory` | Warehouses, Suppliers, Stock Logs, Damage Tracking |
+| `payments` | Transactions, Wallets, Coupons, Mobile Payment Logs |
+| `integrations`| External API Clients (Steadfast, Pathao, SSLCommerz) |
+| `promotions` | Dynamic Offer Engine |
+| `marketing` | Affiliate System |
+| `social` | Reviews, Q&A, Collections |
+| `analytics` | User Activity Tracking, Search Logs |
+| `communications`| SMS/Email Notification Logs |
+
+## 🗺️ Project Roadmap
+
+### ✅ Phase 1: Database Architecture (Completed)
+- [x] Core Models (User, Book, Order)
+- [x] Complex Shipping Logic
+- [x] Payment Models
+
+### ✅ Phase 2: Advanced Logic & Integrations (Completed)
+- [x] Multi-Warehouse Inventory & Collector Tasks
+- [x] Logistics Accounting (Ledgers, Disputes)
+- [x] Smart SMS Verification (MobilePaymentLog)
+- [x] Courier API Clients (Pathao, Steadfast)
+- [x] Social Features (Reviews, Q&A)
+
+### 🔜 Phase 3: API Development (Next Steps)
+- [ ] DRF Serializers & ViewSets
+- [ ] Authentication API (JWT/Token)
+- [ ] Public Catalog API with Search
+- [ ] Cart & Checkout API
+
+### 🔜 Phase 4: Frontend Development
+- [ ] Next.js Project Setup
+- [ ] UI Components & Pages
 
 ## ⚡ Getting Started
 
