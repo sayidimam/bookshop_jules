@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Supplier, PurchaseOrder, PurchaseItem, StockLog
 from .models_warehouse import Warehouse, StockItem
+from .models_internal import DamageLog, InternalConsumption
 
 class PurchaseItemInline(admin.TabularInline):
     model = PurchaseItem
@@ -33,3 +34,15 @@ class StockItemInline(admin.TabularInline):
 class WarehouseAdmin(admin.ModelAdmin):
     list_display = ('name', 'location', 'is_active')
     inlines = [StockItemInline]
+
+@admin.register(DamageLog)
+class DamageLogAdmin(admin.ModelAdmin):
+    list_display = ('book', 'reason', 'quantity', 'reported_by', 'reported_at')
+    list_filter = ('reason', 'reported_at')
+    search_fields = ('book__title',)
+
+@admin.register(InternalConsumption)
+class InternalConsumptionAdmin(admin.ModelAdmin):
+    list_display = ('book', 'purpose', 'quantity', 'taken_by', 'date_taken')
+    list_filter = ('purpose', 'date_taken')
+    search_fields = ('book__title', 'taken_by__phone_number')

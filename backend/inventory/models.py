@@ -52,6 +52,8 @@ class StockLog(models.Model):
         RETURN_IN = 'RETURN_IN', _('Return In')
         RETURN_OUT = 'RETURN_OUT', _('Return Out (To Supplier)')
         ADJUSTMENT = 'ADJUSTMENT', _('Inventory Adjustment')
+        DAMAGE = 'DAMAGE', _('Damage/Waste')
+        INTERNAL_USE = 'INTERNAL_USE', _('Internal Consumption')
 
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='stock_logs', db_index=True)
     action = models.CharField(max_length=20, choices=Action.choices)

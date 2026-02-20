@@ -29,6 +29,7 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`ShippingRate`**: Tiered pricing (e.g., 0-1kg = 60tk).
 - **`OverweightCharge`**: Incremental pricing (e.g., +20tk per extra kg).
 - **`Courier`**: Pathao, Steadfast, etc.
+- **`CollectorTask`**: Assign procurement tasks to collectors (Market/Shop specific).
 
 ### 4. Orders (`backend/orders`)
 - **`Order`**: Central model with status workflow (`CONFIRMED` -> `DELIVERED`).
@@ -41,7 +42,11 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`Supplier`**: Vendor management.
 - **`PurchaseOrder`**: Procurement tracking.
 - **`Warehouse` & `StockItem`**: Multi-location inventory tracking.
-- **`StockLog`**: Audit trail for all stock movements.
+    - `is_virtual_stock`: Flag for Just-in-Time (JIT) market stock.
+    - `last_sold_at`: To identify Dead Stock.
+- **`StockLog`**: Audit trail for all stock movements (Purchase, Sale, Damage, Internal).
+- **`DamageLog`**: Track wasted/damaged books with reasons.
+- **`InternalConsumption`**: Track books taken by staff/admin.
 
 ### 6. Promotions (`backend/promotions`)
 - **`Offer`**: Dynamic pricing engine (BOGO, Tiered Discount).
@@ -80,9 +85,10 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
     - If found: Marks as claimed, links to `Transaction`, updates Order to `CONFIRMED`.
     - If not found: Keeps transaction `PENDING` until SMS arrives (late arrival handling).
 
-### Warehouse Selection
+### Warehouse Selection & JIT
 1.  **Order Placement**: System checks `StockItem` across active `Warehouse`s.
-2.  **Allocation**: Assigns order to the nearest warehouse with sufficient stock.
+2.  **Virtual Stock**: If item not in warehouse but `is_virtual_stock` is True -> Assign `CollectorTask`.
+3.  **Allocation**: Assigns order to the nearest warehouse with sufficient stock.
 
 ## Setup Instructions
 1.  **Database**: The system is configured to use PostgreSQL if `DB_NAME` env var is present. Otherwise, it defaults to SQLite.

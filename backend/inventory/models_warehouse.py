@@ -18,7 +18,12 @@ class StockItem(models.Model):
     quantity = models.PositiveIntegerField(default=0)
     rack_location = models.CharField(max_length=50, blank=True, help_text="e.g. A-12-3")
 
-    updated_at = models.DateTimeField(auto_now=True)
+    # Advanced Inventory Management
+    last_updated = models.DateTimeField(auto_now=True)
+    last_sold_at = models.DateTimeField(null=True, blank=True, help_text="For Dead Stock tracking")
+    alert_level = models.PositiveIntegerField(default=5, help_text="Notify if stock falls below this level")
+
+    is_virtual_stock = models.BooleanField(default=False, help_text="If True, stock is in market (JIT), not warehouse")
 
     class Meta:
         unique_together = ('warehouse', 'book')

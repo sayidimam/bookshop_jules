@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Division, District, Thana, ShippingZone, ShippingRate, OverweightCharge, Courier
+from .models_collector import CollectorTask, TaskItem
 
 @admin.register(Division)
 class DivisionAdmin(admin.ModelAdmin):
@@ -35,3 +36,14 @@ class OverweightChargeAdmin(admin.ModelAdmin):
 @admin.register(Courier)
 class CourierAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_active')
+
+class TaskItemInline(admin.TabularInline):
+    model = TaskItem
+    extra = 1
+
+@admin.register(CollectorTask)
+class CollectorTaskAdmin(admin.ModelAdmin):
+    list_display = ('collector', 'status', 'supplier', 'created_at')
+    list_filter = ('status', 'collector', 'created_at')
+    search_fields = ('collector__phone_number', 'note')
+    inlines = [TaskItemInline]
