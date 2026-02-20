@@ -3,12 +3,13 @@ databases:
     databaseName: bookshop
     user: jules
     plan: free
+    region: oregon
 
 services:
   - type: web
     name: bookshop_backend
     env: python
-    region: singapore
+    region: oregon
     plan: free
     buildCommand: "./backend/build.sh"
     startCommand: "cd backend && gunicorn core.wsgi:application"
