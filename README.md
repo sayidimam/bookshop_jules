@@ -101,9 +101,16 @@ Open [http://localhost:3000](http://localhost:3000) with your browser.
 
 This guide explains how to deploy the **Frontend** to Netlify. Note that the Backend (Django) needs a separate Python-capable host (like Render, Railway, or AWS).
 
-### Step 1: Prepare the Backend
-1. Deploy your Django backend to a hosting service.
-2. In `backend/core/settings.py`, update `CORS_ALLOWED_ORIGINS` to include your Netlify URL (e.g., `https://your-site-name.netlify.app`).
+### Step 1: Deploy Backend to Render (Free)
+1. Push your code to **GitHub**.
+2. Sign up on [Render.com](https://render.com/).
+3. Click **New +** -> **Blueprint**.
+4. Connect your GitHub repository.
+5. Render will automatically detect `render.yaml` and create:
+   - A PostgreSQL Database (Free Tier)
+   - A Web Service (Django Backend)
+6. Once deployed, copy your Backend URL (e.g., `https://bookshop-backend.onrender.com`).
+7. Update `backend/core/settings.py` (in GitHub) to add your Frontend URL to `CORS_ALLOWED_ORIGINS`.
 
 ### Step 2: Deploy Frontend to Netlify
 1. Push your code to **GitHub**.

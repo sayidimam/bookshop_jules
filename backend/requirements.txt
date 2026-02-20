@@ -9,3 +9,6 @@ sslcommerz-lib
 djoser
 djangorestframework-simplejwt
 beautifulsoup4
+gunicorn
+dj-database-url
+whitenoise
