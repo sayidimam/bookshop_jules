@@ -72,34 +72,55 @@ A high-scale, feature-rich e-commerce platform for books tailored for the Bangla
 
 ## ⚡ Getting Started
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/bookshop_jules.git
-   cd bookshop_jules
-   ```
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-username/bookshop_jules.git
+cd bookshop_jules
+```
 
-2. **Setup Backend:**
-   ```bash
-   cd backend
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
+### 2. Setup Backend (Django)
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
 
-3. **Run Migrations:**
-   ```bash
-   python manage.py migrate
-   ```
+### 3. Setup Frontend (Next.js)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-4. **Create Superuser:**
-   ```bash
-   python manage.py createsuperuser
-   ```
+## 🚀 Deployment Guide (Netlify)
 
-5. **Run Server:**
-   ```bash
-   python manage.py runserver
-   ```
+This guide explains how to deploy the **Frontend** to Netlify. Note that the Backend (Django) needs a separate Python-capable host (like Render, Railway, or AWS).
+
+### Step 1: Prepare the Backend
+1. Deploy your Django backend to a hosting service.
+2. In `backend/core/settings.py`, update `CORS_ALLOWED_ORIGINS` to include your Netlify URL (e.g., `https://your-site-name.netlify.app`).
+
+### Step 2: Deploy Frontend to Netlify
+1. Push your code to **GitHub**.
+2. Log in to [Netlify](https://app.netlify.com/).
+3. Click **"Add new site"** > **"Import an existing project"**.
+4. Select **GitHub** and choose your repository.
+5. **Configure Build Settings:**
+   - **Base directory:** `frontend`
+   - **Build command:** `npm run build`
+   - **Publish directory:** `.next`
+6. **Environment Variables:**
+   - Click "Add environment variable".
+   - Key: `NEXT_PUBLIC_API_URL`
+   - Value: Your deployed backend URL (e.g., `https://api.yourdomain.com/api`).
+7. Click **"Deploy site"**.
+
+Netlify will automatically detect the `netlify.toml` file and build your Next.js application.
 
 ## 📝 Documentation
 For detailed architecture and workflow diagrams, please refer to [AGENTS.md](AGENTS.md).
