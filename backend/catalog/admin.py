@@ -1,17 +1,22 @@
 from django.contrib import admin
-from .models import Author, Publisher, Category, Tag, Book, BookImage
+from .models import Author, Publisher, Category, Tag, Book, BookImage, BundleItem
 
 class BookImageInline(admin.TabularInline):
     model = BookImage
     extra = 1
 
+class BundleItemInline(admin.TabularInline):
+    model = BundleItem
+    extra = 1
+    fk_name = 'bundle'
+
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ('title', 'publisher', 'regular_price', 'sale_price', 'stock', 'is_active')
+    list_display = ('title', 'publisher', 'regular_price', 'sale_price', 'stock', 'is_active', 'is_bundle')
     search_fields = ('title', 'isbn', 'authors__name', 'publisher__name')
-    list_filter = ('is_active', 'publisher', 'categories')
+    list_filter = ('is_active', 'is_bundle', 'publisher', 'categories')
     prepopulated_fields = {'slug': ('title',)}
-    inlines = [BookImageInline]
+    inlines = [BookImageInline, BundleItemInline]
     filter_horizontal = ('authors', 'categories', 'tags', 'related_books')
 
 @admin.register(Author)

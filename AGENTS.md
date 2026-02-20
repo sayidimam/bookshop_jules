@@ -18,6 +18,8 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 
 ### 2. Catalog (`backend/catalog`)
 - **`Book`**: Core product. Has M2M relations with `Author`, `Category`, `Tag`.
+    - `is_bundle`: Boolean to mark bundle products.
+- **`BundleItem`**: Links component books to a bundle product.
 - **`BookImage`**: Multiple images per book.
 - **`Publisher`**: Publisher details.
 
@@ -28,15 +30,19 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`Courier`**: Pathao, Steadfast, etc.
 
 ### 4. Orders (`backend/orders`)
-- **`Order`**: Central model.
-    - **Status Workflow**: `CONFIRMED` -> `PENDING` -> `COLLECTING` -> `PACKING` -> `RTS` -> `SHIPPED` -> `DELIVERED`.
-    - **Snapshot**: Stores shipping address and price snapshot to preserve history.
-- **`OrderItem`**: Links Order to Book.
-- **`OrderStatusHistory`**: Tracks all status changes (audit log).
+- **`Order`**: Central model with status workflow (`CONFIRMED` -> `DELIVERED`).
+    - **Indices**: Composite index on `status` + `created_at` for fast dashboard queries.
+- **`ReturnRequest` & `ReturnItem`**: Handles partial/full returns with reasons (Damaged, Mind Changed, etc.).
+- **`OrderStatusHistory`**: Audit log for status changes.
 
-### 5. Payments (`backend/payments`)
+### 5. Inventory (`backend/inventory`)
+- **`Supplier`**: Vendor management.
+- **`PurchaseOrder` & `PurchaseItem`**: Track procurement from suppliers.
+- **`StockLog`**: Audit trail for all stock movements (Sale, Purchase, Return, Adjustment).
+
+### 6. Payments (`backend/payments`)
 - **`Transaction`**: Records payments (Manual or Gateway).
-- **`PaymentMethod`**: Configurable methods (Bkash, Nagad, etc.).
+- **`Wallet` & `WalletTransaction`**: Store credit system for refunds and advance deposits.
 - **Manual Verification**: Supports Transaction ID matching and SMS Webhook logs.
 
 ## Critical Workflows
@@ -50,16 +56,17 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 6.  **Courier** picks up -> Status: `SHIPPED`.
 7.  **Customer** receives -> Status: `DELIVERED`.
 
+### Return & Refund Flow
+1.  **Customer** requests return via UI.
+2.  **Admin** approves `ReturnRequest`.
+3.  **Logistics** collects item -> `StockLog` (Return In).
+4.  **Finance** processes refund -> Credit to `Wallet` or reversed transaction.
+
 ### Shipping Calculation Logic
 1.  Determine `ShippingZone` based on Customer's District/Thana.
 2.  Calculate Total Weight of Order.
 3.  Check `ShippingRate` for the zone and weight tier.
-4.  If weight exceeds max tier, apply `OverweightCharge` (Base Rate + (Excess Weight * Rate per Unit)).
-
-### Payment Verification
-- Users can input TrxID.
-- System receives SMS via Webhook (stored in `raw_data`).
-- Admin or Automator matches TrxID/Sender Number to verify payment.
+4.  If weight exceeds max tier, apply `OverweightCharge`.
 
 ## Setup Instructions
 1.  **Database**: The system is configured to use PostgreSQL if `DB_NAME` env var is present. Otherwise, it defaults to SQLite.

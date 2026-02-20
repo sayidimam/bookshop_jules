@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Cart, CartItem, Order, OrderItem, OrderStatusHistory
+from .models_return import ReturnRequest, ReturnItem
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -39,3 +40,14 @@ class CartAdmin(admin.ModelAdmin):
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
     list_display = ('cart', 'book', 'quantity')
+
+class ReturnItemInline(admin.TabularInline):
+    model = ReturnItem
+    extra = 0
+
+@admin.register(ReturnRequest)
+class ReturnRequestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order', 'status', 'reason', 'created_at')
+    list_filter = ('status', 'reason', 'created_at')
+    search_fields = ('order__id', 'user__phone_number')
+    inlines = [ReturnItemInline]

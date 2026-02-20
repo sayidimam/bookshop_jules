@@ -50,12 +50,12 @@ class Order(models.Model):
         PREORDER = 'PREORDER', _('Preorder')
         LOST = 'LOST', _('Lost')
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='orders')
-    status = models.CharField(max_length=30, choices=Status.choices, default=Status.INCOMPLETE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='orders', db_index=True)
+    status = models.CharField(max_length=30, choices=Status.choices, default=Status.INCOMPLETE, db_index=True)
 
     # Address Details (Snapshot)
     shipping_name = models.CharField(max_length=255)
-    shipping_phone = models.CharField(max_length=20)
+    shipping_phone = models.CharField(max_length=20, db_index=True)
     shipping_address = models.TextField()
     shipping_division = models.ForeignKey(Division, on_delete=models.SET_NULL, null=True, blank=True)
     shipping_district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True)
@@ -68,17 +68,22 @@ class Order(models.Model):
     paid_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
 
     # Logistics
-    courier = models.ForeignKey(Courier, on_delete=models.SET_NULL, null=True, blank=True)
-    tracking_id = models.CharField(max_length=100, blank=True)
+    courier = models.ForeignKey(Courier, on_delete=models.SET_NULL, null=True, blank=True, db_index=True)
+    tracking_id = models.CharField(max_length=100, blank=True, db_index=True)
     weight = models.DecimalField(max_digits=8, decimal_places=3, default=0.00, help_text="Total Weight in KG")
 
     # Payment Info
     payment_method = models.CharField(max_length=50, blank=True) # e.g. COD, BKASH, NAGAD
-    transaction_id = models.CharField(max_length=100, blank=True)
+    transaction_id = models.CharField(max_length=100, blank=True, db_index=True)
 
     note = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['status', 'created_at']),
+        ]
 
     def __str__(self):
         return f"Order #{self.id} - {self.status}"
@@ -100,11 +105,11 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.book.title} (Order #{self.order.id})"
 
 class OrderStatusHistory(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='history')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='history', db_index=True)
     old_status = models.CharField(max_length=30, blank=True)
     new_status = models.CharField(max_length=30)
     changed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
     note = models.TextField(blank=True)
 
     class Meta:
