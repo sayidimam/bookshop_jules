@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import PaymentMethod, Transaction, Coupon, Wallet, WalletTransaction
+from .models import PaymentMethod, Transaction, Coupon, Wallet, WalletTransaction, MobilePaymentLog
+
+@admin.register(MobilePaymentLog)
+class MobilePaymentLogAdmin(admin.ModelAdmin):
+    list_display = ('transaction_id', 'provider', 'amount', 'reference', 'is_claimed', 'received_at')
+    list_filter = ('provider', 'is_claimed', 'received_at')
+    search_fields = ('transaction_id', 'sender_number', 'reference')
+    readonly_fields = ('received_at', 'claimed_at')
 
 @admin.register(PaymentMethod)
 class PaymentMethodAdmin(admin.ModelAdmin):

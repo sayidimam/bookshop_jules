@@ -21,6 +21,34 @@ class PaymentMethod(models.Model):
     def __str__(self):
         return self.name
 
+class MobilePaymentLog(models.Model):
+    """
+    Buffer table for incoming SMS messages from payment providers (Bkash/Nagad).
+    This stores raw transactions before they are claimed by a user/order.
+    """
+    class Provider(models.TextChoices):
+        BKASH = 'BKASH', _('Bkash')
+        NAGAD = 'NAGAD', _('Nagad')
+        ROCKET = 'ROCKET', _('Rocket')
+        UPAY = 'UPAY', _('Upay')
+        OTHER = 'OTHER', _('Other')
+
+    provider = models.CharField(max_length=20, choices=Provider.choices, default=Provider.BKASH)
+    transaction_id = models.CharField(max_length=100, unique=True, db_index=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+    sender_number = models.CharField(max_length=20, blank=True, help_text="Extracted from SMS")
+    reference = models.CharField(max_length=100, blank=True, db_index=True, help_text="Extracted Reference")
+
+    raw_message = models.TextField(blank=True)
+    received_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    is_claimed = models.BooleanField(default=False, db_index=True)
+    claimed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.provider} {self.transaction_id} - {self.amount}"
+
 class Transaction(models.Model):
     class Status(models.TextChoices):
         PENDING = 'PENDING', _('Pending')
@@ -34,12 +62,15 @@ class Transaction(models.Model):
 
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     transaction_id = models.CharField(max_length=100, unique=True, help_text="TrxID from SMS or Gateway", db_index=True)
-    sender_number = models.CharField(max_length=20, blank=True, help_text="Number from which money was sent", db_index=True)
+    sender_number = models.CharField(max_length=20, blank=True, help_text="Optional: Number from which money was sent", db_index=True)
     reference = models.CharField(max_length=100, blank=True, help_text="Reference used during transfer")
 
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, db_index=True)
 
-    # Webhook Data
+    # Link to the raw log for verification
+    mobile_log = models.OneToOneField(MobilePaymentLog, on_delete=models.SET_NULL, null=True, blank=True, related_name='transaction')
+
+    # Webhook Data (Legacy/Backup)
     raw_data = models.TextField(blank=True, help_text="Raw SMS or Gateway response")
 
     verified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_transactions')

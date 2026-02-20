@@ -54,7 +54,8 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`AffiliateCommission`**: Calculate earnings per order.
 
 ### 8. Payments (`backend/payments`)
-- **`Transaction`**: Records payments (Manual or Gateway).
+- **`MobilePaymentLog`**: Buffer table for raw SMS messages from Bkash/Nagad.
+- **`Transaction`**: Records verified payments. Links to `MobilePaymentLog` for audit.
 - **`Wallet`**: User store credit system.
 
 ### 9. Social & Community (`backend/social`)
@@ -72,10 +73,12 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 
 ## Critical Workflows
 
-### Dynamic Offer Application
-1.  **Cart Calculation**: System fetches active `Offer`s.
-2.  **Condition Check**: Evaluates `OfferCondition` against Cart items.
-3.  **Reward Application**: Applies `OfferReward` (Discount/Free Item) if conditions met.
+### Manual Payment Verification (Smart Auto-Match)
+1.  **SMS Received**: Gateway app forwards SMS to webhook -> Saved in `MobilePaymentLog`.
+2.  **User Input**: Customer enters TrxID on frontend.
+3.  **Auto Match**: System searches `MobilePaymentLog` for TrxID.
+    - If found: Marks as claimed, links to `Transaction`, updates Order to `CONFIRMED`.
+    - If not found: Keeps transaction `PENDING` until SMS arrives (late arrival handling).
 
 ### Warehouse Selection
 1.  **Order Placement**: System checks `StockItem` across active `Warehouse`s.
