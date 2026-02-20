@@ -184,3 +184,12 @@ SSLCOMMERZ = {
     'STORE_PASS': os.environ.get('SSLCOMMERZ_STORE_PASS', ''),
     'IS_SANDBOX': os.environ.get('SSLCOMMERZ_IS_SANDBOX', 'True') == 'True',
 }
+
+# Pathao Courier Configuration
+PATHAO = {
+    'CLIENT_ID': os.environ.get('PATHAO_CLIENT_ID', ''),
+    'CLIENT_SECRET': os.environ.get('PATHAO_CLIENT_SECRET', ''),
+    'USERNAME': os.environ.get('PATHAO_USERNAME', ''),
+    'PASSWORD': os.environ.get('PATHAO_PASSWORD', ''),
+    'BASE_URL': os.environ.get('PATHAO_BASE_URL', 'https://courier-api-sandbox.pathao.com'),
+}
