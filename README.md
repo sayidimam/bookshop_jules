@@ -9,81 +9,66 @@ A high-scale, feature-rich e-commerce platform for books tailored for the Bangla
 
 ## 🚀 Key Features
 
-### 📦 Logistics & Financial Accounting (Advanced)
-- **Multi-Account Support:** Manage multiple accounts for Pathao, Steadfast, RedX simultaneously.
-- **Audit & Reconciliation:** Automatically track `Expected COD` vs `Received COD`.
-- **Dispute Management:** System flags lost parcels or overcharged delivery fees for dispute resolution.
-- **Zone-Based Shipping:** Complex weight-based calculation (e.g., 0-500g: 60tk, +1kg: 20tk).
+### 🛒 Automated Product Scraping
+- **Wafilife Scraper:** Automatically fetch book details (Title, Author, Price, Cover Image) from Wafilife URLs using JSON-LD parsing.
+- **Admin Integration:** Simply paste a URL in the admin panel to populate your inventory.
 
-### 💰 Payment & Wallet System
-- **Smart Manual Verification:** Auto-match incoming Bkash/Nagad SMS via Webhook. Users only need to provide TrxID.
-- **User Wallet:** Store credit system for refunds and advance payments.
-- **SSLCommerz:** Integrated payment gateway for automated online payments.
+### 📦 Logistics & Order Workflow (Data Ocean)
+- **Complex Statuses:** Detailed tracking from `Lead/Incomplete` -> `Confirmed` -> `Collecting` -> `Packing` -> `RTS` -> `Shipped`.
+- **Zone-Based Shipping:** Auto-calculates fees based on Division (Inside Dhaka/Sub-Dhaka/Outside) and Weight (e.g., +20tk per extra kg).
+- **Courier Auditing:** Track finances (`Expected vs Received COD`) and manage multiple accounts (Pathao/Steadfast).
+
+### 💰 Payment & Tracking
+- **Smart SMS Verification:** Matches incoming manual payment SMS (Bkash/Nagad) with customer Order ID for auto-verification.
+- **Server-Side Tracking:** Configurable Pixel/CAPI events (`Purchase`) fired either on **Checkout** or **Confirmation**.
+- **SMS Notifications:** Integration with **Greenweb API** to send order updates.
 
 ### 🏭 Inventory & Warehouse
 - **Multi-Warehouse:** Track stock across different locations (Banglabazar, Nilkhet).
-- **Collector Workflow:** Assign specific procurement tasks (`CollectorTask`) to field agents.
-- **Internal Consumption:** Track books taken by staff/admin (Gift, Review Copy, Damaged).
-- **Stock Logs:** Full audit trail of every movement (Purchase, Sale, Return, Damage).
+- **Collector Tasks:** Assign procurement lists to agents in the field.
+- **Internal Logs:** Track damages, gifts, and internal consumption.
 
-### 🏷️ Dynamic Promotions & Social
-- **Offer Engine:** BOGO, Bundle Discounts, Tiered Pricing (Buy 5k get 10% off).
-- **Affiliate System:** User referral links and commission tracking.
-- **Reviews & Q&A:** Verified purchase reviews and question-answer forum.
-- **Public Collections:** Users can create and share book lists.
-
-### 👥 User Management
-- **Mobile Auth:** Registration via Phone Number (Bangladeshi standard).
-- **Segmentation:** Auto-tagging users (VIP, Inactive, New) for targeted marketing.
+### 👥 User & Auth
+- **OTP Login:** Secure phone-number based login/registration.
+- **Role Management:** Separate dashboards for Admin, Collector, and Packer.
 
 ## 🛠️ Technology Stack
 
 - **Backend:** Django + Django REST Framework (DRF)
+- **Authentication:** Djoser + SimpleJWT (OTP support)
 - **Database:** PostgreSQL (Production), SQLite (Dev)
-- **Search Engine:** MeiliSearch (Ultra-fast search)
-- **Integrations:** Pathao API, Steadfast API, SSLCommerz, SMS Gateway
-- **Frontend:** Next.js (Planned)
+- **Search:** MeiliSearch Ready
+- **Integrations:** Pathao, Steadfast, Greenweb SMS, SSLCommerz
 
 ## 📂 System Modules
 
 | Module | Description |
 | :--- | :--- |
-| `users` | Auth, Roles (Admin/Collector/Packer), Segmentation |
-| `catalog` | Books, Authors, Bundles, Categories |
-| `orders` | Order Workflow (Incomplete -> Delivered), Returns, Pre-orders |
-| `logistics` | Courier Integration, Shipping Rates, Financial Auditing |
-| `inventory` | Warehouses, Suppliers, Stock Logs, Damage Tracking |
-| `payments` | Transactions, Wallets, Coupons, Mobile Payment Logs |
-| `integrations`| External API Clients (Steadfast, Pathao, SSLCommerz) |
-| `promotions` | Dynamic Offer Engine |
-| `marketing` | Affiliate System |
-| `social` | Reviews, Q&A, Collections |
-| `analytics` | User Activity Tracking, Search Logs |
-| `communications`| SMS/Email Notification Logs |
+| `users` | Auth (OTP), Roles, Customer Segmentation |
+| `catalog` | Books, Scraper Service, Bundles, Categories |
+| `orders` | Complex Workflow, Weight-based Shipping Calc |
+| `logistics` | Courier Integration, Shipping Rates, Ledgers |
+| `payments` | Transactions, Smart Verification, Wallets |
+| `integrations`| External Clients (Greenweb, Pathao, Steadfast) |
+| `analytics` | Server-Side Tracking Signals, User Activity |
+| `communications`| Notification Logs |
 
 ## 🗺️ Project Roadmap
 
 ### ✅ Phase 1: Database Architecture (Completed)
 - [x] Core Models (User, Book, Order)
-- [x] Complex Shipping Logic
-- [x] Payment Models
+- [x] Logistics & Inventory Schema
 
-### ✅ Phase 2: Advanced Logic & Integrations (Completed)
-- [x] Multi-Warehouse Inventory & Collector Tasks
-- [x] Logistics Accounting (Ledgers, Disputes)
-- [x] Smart SMS Verification (MobilePaymentLog)
-- [x] Courier API Clients (Pathao, Steadfast)
-- [x] Social Features (Reviews, Q&A)
+### ✅ Phase 2: Logic & Integrations (Completed)
+- [x] Wafilife Scraper Service
+- [x] Greenweb SMS Integration
+- [x] Tracking Signal Logic
 
-### 🔜 Phase 3: API Development (Next Steps)
-- [ ] DRF Serializers & ViewSets
-- [ ] Authentication API (JWT/Token)
-- [ ] Public Catalog API with Search
-- [ ] Cart & Checkout API
-
-### 🔜 Phase 4: Frontend Development
-- [ ] Next.js Project Setup
-- [ ] UI Components & Pages
+### ✅ Phase 3: API Development (Completed)
+- [x] **Auth:** `/api/auth/otp/send/` & `/api/auth/otp/verify/`
+- [x] **Catalog:** `/api/catalog/books/` & `/api/catalog/scrape/`
+- [x] **Orders:** `/api/orders/checkout/` (Calculates Shipping)
+- [x] **Payments:** `/api/payments/verify/` (Manual TrxID Match)
 
 ## ⚡ Getting Started
 

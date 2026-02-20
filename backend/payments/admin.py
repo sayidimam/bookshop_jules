@@ -1,46 +1,12 @@
 from django.contrib import admin
-from .models import PaymentMethod, Transaction, Coupon, Wallet, WalletTransaction, MobilePaymentLog
-from .models_refund import Refund
+from .models import PaymentMethod, MobilePaymentLog, Transaction, Coupon, Wallet, WalletTransaction
+from .models_parsing import SmsParsingRule
+from .admin_parsing import SmsParsingRuleAdmin
 
-@admin.register(MobilePaymentLog)
-class MobilePaymentLogAdmin(admin.ModelAdmin):
-    list_display = ('transaction_id', 'provider', 'amount', 'reference', 'is_claimed', 'received_at')
-    list_filter = ('provider', 'is_claimed', 'received_at')
-    search_fields = ('transaction_id', 'sender_number', 'reference')
-    readonly_fields = ('received_at', 'claimed_at')
-
-@admin.register(PaymentMethod)
-class PaymentMethodAdmin(admin.ModelAdmin):
-    list_display = ('name', 'provider', 'is_active')
-    list_filter = ('is_active',)
-
-@admin.register(Transaction)
-class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('transaction_id', 'order', 'status', 'amount', 'created_at')
-    list_filter = ('status', 'method', 'created_at')
-    search_fields = ('transaction_id', 'sender_number', 'reference', 'order__id')
-    readonly_fields = ('created_at', 'verified_at', 'verified_by')
-
-@admin.register(Coupon)
-class CouponAdmin(admin.ModelAdmin):
-    list_display = ('code', 'discount_type', 'discount_value', 'is_active', 'valid_to', 'used_count')
-    list_filter = ('is_active', 'discount_type')
-    search_fields = ('code', 'description')
-
-class WalletTransactionInline(admin.TabularInline):
-    model = WalletTransaction
-    extra = 0
-    can_delete = False
-    readonly_fields = ('transaction_type', 'amount', 'description', 'reference_id', 'created_at')
-
-@admin.register(Wallet)
-class WalletAdmin(admin.ModelAdmin):
-    list_display = ('user', 'balance', 'updated_at')
-    search_fields = ('user__phone_number', 'user__full_name')
-    inlines = [WalletTransactionInline]
-
-@admin.register(Refund)
-class RefundAdmin(admin.ModelAdmin):
-    list_display = ('order', 'amount', 'method', 'status', 'created_at')
-    list_filter = ('status', 'method')
-    search_fields = ('order__id', 'transaction_ref', 'account_number')
+admin.site.register(PaymentMethod)
+admin.site.register(MobilePaymentLog)
+admin.site.register(Transaction)
+admin.site.register(Coupon)
+admin.site.register(Wallet)
+admin.site.register(WalletTransaction)
+# SmsParsingRule is registered via decorator in admin_parsing.py, but we need to ensure it's imported
