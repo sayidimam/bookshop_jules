@@ -43,6 +43,7 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`ReturnRequest` & `ReturnItem`**: Handles partial/full returns.
 - **`PreOrder`**: Advance booking system for upcoming books.
 - **`Subscription`**: Recurring book plans (e.g., Monthly Book Box).
+- **`OrderArchive`**: Flat-structure table for storing 2+ year old order data.
 
 ### 5. Inventory (`backend/inventory`)
 - **`Supplier`**: Vendor management.
@@ -58,6 +59,7 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`Offer`**: Dynamic pricing engine (BOGO, Tiered Discount).
 - **`OfferCondition`**: Logic rules (e.g., Min Qty > 2, Specific Category).
 - **`OfferReward`**: Benefits (e.g., Free Item, 10% Off).
+- **`GiftCard`**: Digital gift vouchers with balance tracking.
 
 ### 7. Marketing (`backend/marketing`)
 - **`AffiliateProgram`**: Manage commission rates.
@@ -68,6 +70,7 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`MobilePaymentLog`**: Buffer table for raw SMS messages from Bkash/Nagad.
 - **`Transaction`**: Records verified payments. Links to `MobilePaymentLog` for audit.
 - **`Wallet`**: User store credit system.
+- **`Refund`**: Track refunds via Wallet, Bank, or Mobile Banking.
 
 ### 9. Social & Community (`backend/social`)
 - **`Review`**: User product reviews with verified purchase check.
@@ -95,6 +98,7 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 1.  **Queue System**: Orders initially go to `QUEUE` status to prevent DB lock during high traffic. Background workers process them.
 2.  **Webhook Tracking**: Instead of polling 100k orders, we use `CourierWebhookView` to receive updates *only* when status changes.
 3.  **Search**: MeiliSearch handles catalog queries (millions of records) with <50ms latency.
+4.  **Archiving**: Old orders are moved to `OrderArchive` to keep the main table light.
 
 ### Automated Inventory & Returns
 1.  **Return Request**: Admin marks as `COMPLETED`.

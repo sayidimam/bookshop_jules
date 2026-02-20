@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import PaymentMethod, Transaction, Coupon, Wallet, WalletTransaction, MobilePaymentLog
+from .models_refund import Refund
 
 @admin.register(MobilePaymentLog)
 class MobilePaymentLogAdmin(admin.ModelAdmin):
@@ -37,3 +38,9 @@ class WalletAdmin(admin.ModelAdmin):
     list_display = ('user', 'balance', 'updated_at')
     search_fields = ('user__phone_number', 'user__full_name')
     inlines = [WalletTransactionInline]
+
+@admin.register(Refund)
+class RefundAdmin(admin.ModelAdmin):
+    list_display = ('order', 'amount', 'method', 'status', 'created_at')
+    list_filter = ('status', 'method')
+    search_fields = ('order__id', 'transaction_ref', 'account_number')
