@@ -82,6 +82,7 @@ class Book(models.Model):
     regular_price = models.DecimalField(max_digits=10, decimal_places=2)
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     stock = models.PositiveIntegerField(default=0)
+    weight = models.DecimalField(max_digits=6, decimal_places=3, default=0.25, help_text="Weight in KG")
 
     # Meta
     is_active = models.BooleanField(default=True, db_index=True)
