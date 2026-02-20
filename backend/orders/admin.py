@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Cart, CartItem, Order, OrderItem, OrderStatusHistory
 from .models_return import ReturnRequest, ReturnItem
+from .models_advanced import PreOrder, SubscriptionPlan, UserSubscription
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -51,3 +52,17 @@ class ReturnRequestAdmin(admin.ModelAdmin):
     list_filter = ('status', 'reason', 'created_at')
     search_fields = ('order__id', 'user__phone_number')
     inlines = [ReturnItemInline]
+
+@admin.register(PreOrder)
+class PreOrderAdmin(admin.ModelAdmin):
+    list_display = ('book', 'user', 'status', 'advance_payment', 'created_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('book__title', 'user__phone_number')
+
+@admin.register(SubscriptionPlan)
+class SubscriptionPlanAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'duration_days', 'is_active')
+
+@admin.register(UserSubscription)
+class UserSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'plan', 'end_date', 'is_active')

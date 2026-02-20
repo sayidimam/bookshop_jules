@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Supplier, PurchaseOrder, PurchaseItem, StockLog
+from .models_warehouse import Warehouse, StockItem
 
 class PurchaseItemInline(admin.TabularInline):
     model = PurchaseItem
@@ -23,3 +24,12 @@ class StockLogAdmin(admin.ModelAdmin):
     list_filter = ('action', 'created_at')
     search_fields = ('book__title', 'reference')
     readonly_fields = ('created_at',)
+
+class StockItemInline(admin.TabularInline):
+    model = StockItem
+    extra = 1
+
+@admin.register(Warehouse)
+class WarehouseAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'is_active')
+    inlines = [StockItemInline]

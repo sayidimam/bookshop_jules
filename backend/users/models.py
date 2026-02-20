@@ -31,6 +31,14 @@ class UserManager(BaseUserManager):
 
         return self.create_user(phone_number, password, **extra_fields)
 
+class UserTag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+
 class User(AbstractBaseUser, PermissionsMixin):
     class Role(models.TextChoices):
         ADMIN = 'ADMIN', _('Admin')
@@ -39,15 +47,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         PACKER = 'PACKER', _('Packer')
         COURIER_MANAGER = 'COURIER_MANAGER', _('Courier Manager')
 
-    phone_number = models.CharField(_('phone number'), max_length=15, unique=True)
-    email = models.EmailField(_('email address'), blank=True, null=True, unique=True)
+    phone_number = models.CharField(_('phone number'), max_length=15, unique=True, db_index=True)
+    email = models.EmailField(_('email address'), blank=True, null=True, unique=True, db_index=True)
     full_name = models.CharField(_('full name'), max_length=255, blank=True)
 
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
         default=Role.CUSTOMER,
+        db_index=True
     )
+
+    tags = models.ManyToManyField(UserTag, blank=True, related_name='users')
 
     # Tracking Fields
     fbp = models.CharField(max_length=255, blank=True, null=True, help_text="Facebook Pixel Cookie")

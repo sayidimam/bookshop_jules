@@ -1,6 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import User, UserTag
+
+@admin.register(UserTag)
+class UserTagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
 
 class UserAdmin(BaseUserAdmin):
     list_display = ('phone_number', 'email', 'full_name', 'role', 'is_staff', 'is_active')
@@ -11,7 +16,8 @@ class UserAdmin(BaseUserAdmin):
         ('Personal info', {'fields': ('full_name', 'email')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
-        ('Role & Tracking', {'fields': ('role', 'fbp', 'fbc', 'ip_address', 'user_agent')}),
+        ('Role & Tracking', {'fields': ('role', 'fbp', 'fbc', 'ip_address', 'user_agent', 'tags')}),
     )
+    filter_horizontal = ('tags',)
 
 admin.site.register(User, UserAdmin)
