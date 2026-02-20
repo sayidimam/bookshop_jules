@@ -29,7 +29,11 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`ShippingRate`**: Tiered pricing (e.g., 0-1kg = 60tk).
 - **`OverweightCharge`**: Incremental pricing (e.g., +20tk per extra kg).
 - **`Courier`**: Pathao, Steadfast, etc.
-- **`CollectorTask`**: Assign procurement tasks to collectors (Market/Shop specific).
+- **`CollectorTask`**: Assign procurement tasks to collectors.
+- **`CourierAccount`**: Manage multiple merchant accounts (e.g., Pathao Main, Steadfast Backup).
+- **`CourierConsignment`**: Track financial status of each shipment (Expected vs Received COD).
+- **`CourierLedger`**: Audit log for bulk payments from courier companies.
+- **`CourierDispute`**: Track lost parcels or charge mismatches.
 
 ### 4. Orders (`backend/orders`)
 - **`Order`**: Central model with status workflow (`CONFIRMED` -> `DELIVERED`).
@@ -83,6 +87,12 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **SSLCommerz**: Library integration for payment gateway.
 
 ## Critical Workflows
+
+### Courier Auditing & Reconciliation
+1.  **Shipment**: System records `expected_cod` and `courier_charge` in `CourierConsignment`.
+2.  **Delivery**: Courier updates status via API.
+3.  **Payment**: Merchant receives bulk payment. Entry created in `CourierLedger`.
+4.  **Audit**: System compares `received_cod` vs `expected_cod`. If mismatch -> `CourierDispute` created.
 
 ### Manual Payment Verification (Smart Auto-Match)
 1.  **SMS Received**: Gateway app forwards SMS to webhook -> Saved in `MobilePaymentLog`.
