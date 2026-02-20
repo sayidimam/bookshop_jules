@@ -2,9 +2,12 @@
 # Exit on error
 set -o errexit
 
-cd backend # Ensure we are in the django project root
+# Navigate to backend directory
+cd backend
 
+# Install dependencies
 pip install -r requirements.txt
 
+# Collect static files
+# Note: Ensure DB is not required for this step, or use dummy env vars if needed
 python manage.py collectstatic --no-input
-python manage.py migrate

@@ -12,6 +12,7 @@ services:
     plan: free
     buildCommand: "./backend/build.sh"
     startCommand: "cd backend && gunicorn core.wsgi:application"
+    preDeployCommand: "cd backend && python manage.py migrate"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
