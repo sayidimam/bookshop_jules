@@ -126,3 +126,8 @@ class OrderStatusHistory(models.Model):
 
     def __str__(self):
         return f"Order #{self.order.id}: {self.old_status} -> {self.new_status}"
+
+# Import split models
+from .models_advanced import *
+from .models_archive import *
+from .models_return import *

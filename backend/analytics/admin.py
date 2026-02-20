@@ -1,4 +1,4 @@
-from rest_framework import admin
+from django.contrib import admin
 from .models import SiteConfiguration
 
 @admin.register(SiteConfiguration)

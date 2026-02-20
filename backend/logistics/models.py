@@ -71,3 +71,7 @@ class Courier(models.Model):
 
     def __str__(self):
         return self.name
+
+# Import split models
+from .models_audit import *
+from .models_collector import *

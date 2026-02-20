@@ -56,3 +56,6 @@ class OfferReward(models.Model):
 
     def __str__(self):
         return f"{self.reward_type}: {self.value}"
+
+# Import split models
+from .models_giftcard import *

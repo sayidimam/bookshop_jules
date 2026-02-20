@@ -179,9 +179,7 @@ DJOSER = {
 }
 
 # CORS Configuration
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 
 # MeiliSearch Configuration
 MEILISEARCH = {
@@ -214,3 +212,8 @@ PATHAO = {
 
 # Greenweb SMS Configuration
 GREENWEB_TOKEN = os.environ.get('GREENWEB_TOKEN', '')
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

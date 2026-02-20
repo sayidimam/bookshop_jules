@@ -66,3 +66,7 @@ class StockLog(models.Model):
 
     def __str__(self):
         return f"{self.book.title} - {self.action} ({self.quantity})"
+
+# Import split models
+from .models_warehouse import *
+from .models_internal import *
