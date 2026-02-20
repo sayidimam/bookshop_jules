@@ -6,11 +6,18 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from .models import SiteConfiguration
+
 @receiver(post_save, sender=Order)
 def track_order_events(sender, instance, created, **kwargs):
+    # Only fire if status changed to CONFIRMED AND Config is set to ON_CONFIRMATION
     if instance.status == Order.Status.CONFIRMED:
-        # Mocking Server-Side Tracking (Facebook CAPI / Google Measurement Protocol)
-        track_purchase_event(instance)
+        try:
+            config = SiteConfiguration.objects.first()
+            if config and config.tracking_trigger == SiteConfiguration.TrackingTrigger.ON_CONFIRMATION:
+                track_purchase_event(instance)
+        except Exception:
+            pass
 
 def track_purchase_event(order):
     user_data = {

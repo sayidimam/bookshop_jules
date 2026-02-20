@@ -215,3 +215,6 @@ PATHAO = {
     'PASSWORD': os.environ.get('PATHAO_PASSWORD', ''),
     'BASE_URL': os.environ.get('PATHAO_BASE_URL', 'https://courier-api-sandbox.pathao.com'),
 }
+
+# Greenweb SMS Configuration
+GREENWEB_TOKEN = os.environ.get('GREENWEB_TOKEN', '')

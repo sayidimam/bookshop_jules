@@ -6,3 +6,6 @@ meilisearch
 requests
 pillow
 sslcommerz-lib
+djoser
+djangorestframework-simplejwt
+beautifulsoup4

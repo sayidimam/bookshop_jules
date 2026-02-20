@@ -1,15 +1,12 @@
-from django.contrib import admin
-from .models import UserActivity, SearchTerm
+from rest_framework import admin
+from .models import SiteConfiguration
 
-@admin.register(UserActivity)
-class UserActivityAdmin(admin.ModelAdmin):
-    list_display = ('user', 'activity_type', 'book', 'created_at')
-    list_filter = ('activity_type', 'created_at')
-    search_fields = ('user__phone_number', 'ip_address')
-    readonly_fields = ('created_at',)
+@admin.register(SiteConfiguration)
+class SiteConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('site_name', 'tracking_trigger')
 
-@admin.register(SearchTerm)
-class SearchTermAdmin(admin.ModelAdmin):
-    list_display = ('term', 'count', 'last_searched')
-    search_fields = ('term',)
-    ordering = ('-count',)
+    def has_add_permission(self, request):
+        # Singleton Logic: Only allow adding if none exists
+        if self.model.objects.exists():
+            return False
+        return super().has_add_permission(request)

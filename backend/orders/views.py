@@ -6,6 +6,9 @@ from decimal import Decimal, ROUND_UP
 from .models import Order, OrderItem, OrderStatusHistory
 from .serializers import CheckoutSerializer, OrderSerializer
 from logistics.models import ShippingRate, OverweightCharge
+from integrations.greenweb import GreenwebClient
+from analytics.models import SiteConfiguration
+from analytics.signals import track_purchase_event
 
 class CheckoutView(views.APIView):
     permission_classes = [permissions.AllowAny] # Allow guest checkout (will link if user exists via phone)
@@ -95,6 +98,22 @@ class CheckoutView(views.APIView):
                     new_status=Order.Status.QUEUE,
                     note="Order Placed via Checkout"
                 )
+
+                # 4. SMS Notification
+                try:
+                    sms_client = GreenwebClient()
+                    msg = f"আপনার অর্ডার #{order.id} প্লেস করা হয়েছে। কনফার্মেশনের জন্য অপেক্ষা করুন।"
+                    sms_client.send_sms(order.shipping_phone, msg)
+                except Exception as e:
+                    print(f"Failed to send SMS: {e}")
+
+                # 5. Tracking Event (If Configured for Checkout)
+                try:
+                    config = SiteConfiguration.objects.first()
+                    if not config or config.tracking_trigger == SiteConfiguration.TrackingTrigger.ON_CHECKOUT:
+                        track_purchase_event(order)
+                except Exception as e:
+                    print(f"Tracking Error: {e}")
 
             return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 

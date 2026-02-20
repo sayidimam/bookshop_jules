@@ -77,3 +77,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.phone_number
+
+class OTP(models.Model):
+    phone_number = models.CharField(max_length=15, db_index=True)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    def is_valid(self):
+        # Valid for 5 minutes
+        return (timezone.now() - self.created_at).total_seconds() < 300
+
+    def __str__(self):
+        return f"{self.phone_number} - {self.code}"
