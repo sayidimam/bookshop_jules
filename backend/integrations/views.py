@@ -6,18 +6,13 @@ from django.views import View
 from django.http import JsonResponse
 from payments.models import MobilePaymentLog, Transaction
 from orders.models import Order
+from logistics.models_audit import CourierConsignment
 from decimal import Decimal
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SmsWebhookView(View):
     """
     Receives SMS data from Android Gateway App.
-    Expected Payload:
-    {
-        "sender": "bKash",
-        "message": "You have received Tk 500.00 from 017... TrxID 8JHS67...",
-        "received_at": "2023-10-25 10:00:00"
-    }
     """
     def post(self, request):
         try:
@@ -25,15 +20,12 @@ class SmsWebhookView(View):
             sender = data.get('sender', '')
             message = data.get('message', '')
 
-            # Simple parsing logic (Regex is better in production)
             provider = MobilePaymentLog.Provider.OTHER
             if 'bKash' in sender or 'bKash' in message:
                 provider = MobilePaymentLog.Provider.BKASH
             elif 'Nagad' in sender or 'Nagad' in message:
                 provider = MobilePaymentLog.Provider.NAGAD
 
-            # Extract TrxID and Amount (Simplified)
-            # In real implementation, use robust regex patterns
             trx_id = None
             amount = 0.00
 
@@ -51,12 +43,9 @@ class SmsWebhookView(View):
                         except (ValueError, IndexError):
                             pass
 
-            # Handle unknown or duplicate TrxIDs (e.g. promotional SMS)
             if not trx_id:
-                # Generate a unique ID for unparsable messages to avoid DB unique constraint error
                 trx_id = f"UNKNOWN-{uuid.uuid4().hex[:8]}"
 
-            # Check if this log already exists (idempotency)
             if MobilePaymentLog.objects.filter(transaction_id=trx_id).exists() and not trx_id.startswith("UNKNOWN"):
                  return JsonResponse({"status": "ignored", "message": "Duplicate TrxID"})
 
@@ -65,10 +54,9 @@ class SmsWebhookView(View):
                 transaction_id=trx_id,
                 amount=amount,
                 raw_message=message,
-                sender_number=sender # or extract real sender
+                sender_number=sender
             )
 
-            # Trigger Auto-Match only if we found a valid TrxID
             if not trx_id.startswith("UNKNOWN"):
                 self.match_transaction(log)
 
@@ -77,16 +65,12 @@ class SmsWebhookView(View):
             return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
     def match_transaction(self, log):
-        """
-        Check if any pending transaction matches this log
-        """
         pending_trx = Transaction.objects.filter(
             transaction_id=log.transaction_id,
             status=Transaction.Status.PENDING
         ).first()
 
         if pending_trx:
-            # Verify Amount Tolerance (e.g. +/- 1 taka)
             if abs(pending_trx.amount - Decimal(log.amount)) < 1.0:
                 pending_trx.status = Transaction.Status.VERIFIED
                 pending_trx.mobile_log = log
@@ -95,7 +79,44 @@ class SmsWebhookView(View):
                 log.is_claimed = True
                 log.save()
 
-                # Update Order Status
                 if pending_trx.order:
-                    pending_trx.order.status = Order.Status.CONFIRMED # Or whatever status logic
+                    pending_trx.order.status = Order.Status.CONFIRMED
                     pending_trx.order.save()
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CourierWebhookView(View):
+    """
+    Scalable endpoint to receive Real-time status updates from Pathao/Steadfast.
+    This replaces the need for polling 100k orders.
+    """
+    def post(self, request):
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+
+            # Identify Courier (Logic depends on payload structure)
+            # Pathao usually sends 'consignment_id', Steadfast 'invoice'
+
+            tracking_code = data.get('consignment_id') or data.get('tracking_code')
+            new_status = data.get('order_status') or data.get('status')
+
+            if not tracking_code:
+                return JsonResponse({"status": "ignored", "message": "No tracking code found"})
+
+            # Update System
+            consignment = CourierConsignment.objects.filter(tracking_code=tracking_code).first()
+            if consignment:
+                consignment.status = new_status
+                consignment.save()
+
+                # Sync with Main Order Status
+                if new_status.lower() in ['delivered', 'success']:
+                    consignment.order.status = Order.Status.DELIVERED
+                    consignment.order.save()
+                elif new_status.lower() in ['returned', 'cancelled']:
+                    consignment.order.status = Order.Status.RETURNED
+                    consignment.order.save()
+
+            return JsonResponse({"status": "success"})
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)

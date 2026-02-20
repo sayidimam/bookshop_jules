@@ -36,7 +36,7 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`CourierDispute`**: Track lost parcels or charge mismatches.
 
 ### 4. Orders (`backend/orders`)
-- **`Order`**: Central model with updated status workflow.
+- **`Order`**: Central model with status workflow (`CONFIRMED` -> `DELIVERED`).
     - **Indices**: Composite index on `status` + `created_at`.
     - **Lead Management**: `is_lead` flag for incomplete orders (phone captured).
     - **Queue System**: `QUEUE` status for high-traffic management.
@@ -86,23 +86,20 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **Pathao Courier**: Full OAuth 2.0 integration for order creation, store management, and price calculation.
 - **Steadfast Courier**: API wrapper for creating orders and checking status.
 - **Manual SMS Webhook**: Endpoint `/api/integrations/sms-webhook/` to receive and auto-match payment SMS.
+- **Courier Webhook**: Endpoint `/api/integrations/courier-webhook/` for scalable real-time status updates.
 - **SSLCommerz**: Library integration for payment gateway.
 
 ## Critical Workflows
 
-### Order Lifecycle & Lead Management
-1.  **Lead Capture**: User enters phone number -> Order created as `INCOMPLETE` (is_lead=True).
-2.  **Order Placement**: User completes checkout -> Status moves to `QUEUE` (High Traffic Buffer).
-3.  **Processing**: Background worker picks from Queue -> Status `PROCESSING`.
-    - If Payment Verified -> Status `CONFIRMED`.
-    - If COD -> Status `PROCESSING` (awaiting admin confirmation).
-4.  **Fulfillment**: Confirmed orders move to `PENDING` -> `PACKING` -> `RTS` -> `SHIPPED`.
+### Scalability Strategy (100k Orders/Day)
+1.  **Queue System**: Orders initially go to `QUEUE` status to prevent DB lock during high traffic. Background workers process them.
+2.  **Webhook Tracking**: Instead of polling 100k orders, we use `CourierWebhookView` to receive updates *only* when status changes.
+3.  **Search**: MeiliSearch handles catalog queries (millions of records) with <50ms latency.
 
-### Courier Auditing & Reconciliation
-1.  **Shipment**: System records `expected_cod` and `courier_charge` in `CourierConsignment`.
-2.  **Delivery**: Courier updates status via API.
-3.  **Payment**: Merchant receives bulk payment. Entry created in `CourierLedger`.
-4.  **Audit**: System compares `received_cod` vs `expected_cod`. If mismatch -> `CourierDispute` created.
+### Automated Inventory & Returns
+1.  **Return Request**: Admin marks as `COMPLETED`.
+2.  **Auto Restock**: Signal triggers. If `GOOD` -> Stock increases. If `DAMAGED` -> DamageLog created.
+3.  **Virtual Stock**: If item not in warehouse, `CollectorTask` is generated for JIT procurement.
 
 ### Manual Payment Verification (Smart Auto-Match)
 1.  **SMS Received**: Gateway app forwards SMS to webhook -> Saved in `MobilePaymentLog`.
@@ -110,11 +107,6 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 3.  **Auto Match**: System searches `MobilePaymentLog` for TrxID.
     - If found: Marks as claimed, links to `Transaction`, updates Order to `CONFIRMED`.
     - If not found: Keeps transaction `PENDING` until SMS arrives (late arrival handling).
-
-### Warehouse Selection & JIT
-1.  **Order Placement**: System checks `StockItem` across active `Warehouse`s.
-2.  **Virtual Stock**: If item not in warehouse but `is_virtual_stock` is True -> Assign `CollectorTask`.
-3.  **Allocation**: Assigns order to the nearest warehouse with sufficient stock.
 
 ## Setup Instructions
 1.  **Database**: The system is configured to use PostgreSQL if `DB_NAME` env var is present. Otherwise, it defaults to SQLite.
