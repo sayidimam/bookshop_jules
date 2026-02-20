@@ -57,6 +57,19 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`Transaction`**: Records payments (Manual or Gateway).
 - **`Wallet`**: User store credit system.
 
+### 9. Social & Community (`backend/social`)
+- **`Review`**: User product reviews with verified purchase check.
+- **`Question` & `Answer`**: Q&A platform for products.
+- **`UserCollection`**: Public/Private user wishlists.
+
+### 10. Communications (`backend/communications`)
+- **`NotificationLog`**: Track SMS/Email delivery status.
+- **`MessageTemplate`**: Manage dynamic message content.
+
+### 11. Analytics (`backend/analytics`)
+- **`UserActivity`**: Track user clicks, views, and cart actions.
+- **`SearchTerm`**: Monitor popular search queries.
+
 ## Critical Workflows
 
 ### Dynamic Offer Application

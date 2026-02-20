@@ -52,6 +52,9 @@ INSTALLED_APPS = [
     "inventory",
     "promotions",
     "marketing",
+    "social",
+    "communications",
+    "analytics",
 ]
 
 MIDDLEWARE = [
