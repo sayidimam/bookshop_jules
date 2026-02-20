@@ -76,6 +76,11 @@ This project is a high-scale e-commerce platform for books (similar to Rokomari/
 - **`UserActivity`**: Track user clicks, views, and cart actions.
 - **`SearchTerm`**: Monitor popular search queries.
 
+### 12. Integrations (`backend/integrations`)
+- **Steadfast Courier**: API wrapper for creating orders and checking status.
+- **Manual SMS Webhook**: Endpoint `/api/integrations/sms-webhook/` to receive and auto-match payment SMS.
+- **SSLCommerz**: Library integration for payment gateway.
+
 ## Critical Workflows
 
 ### Manual Payment Verification (Smart Auto-Match)

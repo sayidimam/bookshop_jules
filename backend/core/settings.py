@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "social",
     "communications",
     "analytics",
+    "integrations",
 ]
 
 MIDDLEWARE = [
@@ -168,4 +169,18 @@ CORS_ALLOWED_ORIGINS = [
 MEILISEARCH = {
     'HOST': os.environ.get('MEILISEARCH_HOST', 'http://127.0.0.1:7700'),
     'API_KEY': os.environ.get('MEILISEARCH_API_KEY', ''),
+}
+
+# Steadfast Courier Configuration
+STEADFAST = {
+    'API_KEY': os.environ.get('STEADFAST_API_KEY', ''),
+    'SECRET_KEY': os.environ.get('STEADFAST_SECRET_KEY', ''),
+    'BASE_URL': os.environ.get('STEADFAST_BASE_URL', 'https://portal.packzy.com/api/v1'),
+}
+
+# SSLCommerz Configuration
+SSLCOMMERZ = {
+    'STORE_ID': os.environ.get('SSLCOMMERZ_STORE_ID', ''),
+    'STORE_PASS': os.environ.get('SSLCOMMERZ_STORE_PASS', ''),
+    'IS_SANDBOX': os.environ.get('SSLCOMMERZ_IS_SANDBOX', 'True') == 'True',
 }
