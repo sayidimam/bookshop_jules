@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import views, status, generics, permissions, filters
 from rest_framework.response import Response
 from django.db import transaction
@@ -61,7 +62,11 @@ class CheckoutView(views.APIView):
             # 3. Create Order
             with transaction.atomic():
                 user = request.user if request.user.is_authenticated else None
-                # TODO: Link guest user by phone if exists logic
+
+                # Link guest user by phone if exists
+                if not user:
+                    User = get_user_model()
+                    user = User.objects.filter(phone_number=data['shipping_phone']).first()
 
                 order = Order.objects.create(
                     user=user,
