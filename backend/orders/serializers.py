@@ -46,20 +46,26 @@ class CheckoutSerializer(serializers.Serializer):
     def validate(self, attrs):
         # Validate Thana
         try:
-            thana = Thana.objects.get(pk=attrs['shipping_thana_id'])
+            # Optimized with select_related for zone to avoid N+1 in shipping calculations
+            thana = Thana.objects.select_related('zone').get(pk=attrs['shipping_thana_id'])
             attrs['thana_obj'] = thana
         except Thana.DoesNotExist:
             raise serializers.ValidationError({'shipping_thana_id': 'Invalid Thana ID'})
 
         # Validate Stock
+        # Performance: Bulk fetch books to avoid N+1 query in loop
+        book_ids = [item['book_id'] for item in attrs['items']]
+        books_map = Book.objects.in_bulk(book_ids)
+
         for item in attrs['items']:
-            try:
-                book = Book.objects.get(pk=item['book_id'])
-                if book.stock < item['quantity']:
-                    # raise serializers.ValidationError(f"Insufficient stock for {book.title}")
-                    pass # Allow ordering for now (Preorder logic possible)
-                item['book_obj'] = book
-            except Book.DoesNotExist:
+            book = books_map.get(item['book_id'])
+            if not book:
                 raise serializers.ValidationError(f"Book ID {item['book_id']} not found")
+
+            if book.stock < item['quantity']:
+                # raise serializers.ValidationError(f"Insufficient stock for {book.title}")
+                pass  # Allow ordering for now (Preorder logic possible)
+
+            item['book_obj'] = book
 
         return attrs
