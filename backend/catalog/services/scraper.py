@@ -1,9 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-import re
 from decimal import Decimal
-from django.core.files.base import ContentFile
 
 class WafilifeScraper:
     def __init__(self):
